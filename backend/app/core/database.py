@@ -1,23 +1,20 @@
-"""Database connection utilities.
+"""Database engine and session management."""
 
-Defines a SQLAlchemy engine and session factory for connecting to the
-application's database.  Uses the URL configured in the settings module.  At
-runtime other modules can import `SessionLocal` and `engine` to interact with
-the database.
-"""
+from collections.abc import Generator
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 
 from .config import settings
 
+connect_args = {"check_same_thread": False} if settings.database_url.startswith("sqlite") else {}
+engine = create_engine(settings.database_url, connect_args=connect_args, future=True)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, future=True)
 
-engine = create_engine(
-    settings.database_url,
-    connect_args={"check_same_thread": False} if settings.database_url.startswith("sqlite") else {},
-)
-"""The SQLAlchemy engine connected to the configured database."""
 
-# Create a configured "Session" class
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-"""Session factory bound to the database engine."""
+def get_db() -> Generator[Session, None, None]:
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

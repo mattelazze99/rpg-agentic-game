@@ -1,34 +1,25 @@
-"""Session API endpoints.
+"""Session endpoints."""
 
-This module exposes REST endpoints for creating and querying game sessions.  It
-delegates business logic to the service layer and returns Pydantic models as
-responses.
-"""
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
 
-from fastapi import APIRouter
+from ..core.database import get_db
+from ..schemas.core_schemas import GameSessionResponse
+from ..schemas.session_schema import SessionCreateRequest, SessionCreatedEnvelope
+from ..services.session_service import create_session, get_session
 
-from ..schemas.session_schema import SessionCreateRequest, SessionResponse
-from ..services.session_service import create_session
-
-
-router = APIRouter()
+router = APIRouter(prefix="/session", tags=["session"])
 
 
-@router.post("/", response_model=SessionResponse)
-def new_session(request: SessionCreateRequest) -> SessionResponse:
-    """Create a new game session.
+@router.post("/", response_model=SessionCreatedEnvelope)
+def create_session_endpoint(request: SessionCreateRequest, db: Session = Depends(get_db)) -> SessionCreatedEnvelope:
+    session = create_session(db, request)
+    return SessionCreatedEnvelope(message="Session created successfully.", session=session)
 
-    Parameters
-    ----------
-    request: SessionCreateRequest
-        The request body containing parameters for session creation.  For V1 this
-        is empty but reserved for future options.
 
-    Returns
-    -------
-    SessionResponse
-        A structured response with the new session identifier and a human‑readable message.
-    """
-    # Delegate to the service layer.  Additional logic such as persistence and
-    # agent initialisation will be added in future iterations.
-    return create_session(request)
+@router.get("/{session_id}", response_model=GameSessionResponse)
+def get_session_endpoint(session_id: str, db: Session = Depends(get_db)) -> GameSessionResponse:
+    session = get_session(db, session_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail="Session not found")
+    return session

@@ -1,30 +1,25 @@
-"""Application entrypoint.
+"""FastAPI application entrypoint."""
 
-Defines a factory for creating the FastAPI application and registers API routers.
-In development you can run the app via `uvicorn app.main:app --reload`.
-"""
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from .api.root import router as root_router
 from .api.session import router as session_router
 from .api.world import router as world_router
+from .core.config import settings
+from .core.database import engine
+from .models import Base
 
 
-def create_app() -> FastAPI:
-    """Create and configure the FastAPI application instance.
-
-    Returns
-    -------
-    FastAPI
-        The configured FastAPI application with all routers registered.
-    """
-    app = FastAPI(title="Multi‑Agent RPG API", version="0.1.0")
-    # Session management endpoints
-    app.include_router(session_router, prefix="/session", tags=["session"])
-    # World/setting endpoints
-    app.include_router(world_router, prefix="/world", tags=["world"])
-    return app
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    Base.metadata.create_all(bind=engine)
+    yield
 
 
-# Create a default app instance for ASGI servers
-app = create_app()
+app = FastAPI(title=settings.app_name, version="0.1.0", lifespan=lifespan)
+Base.metadata.create_all(bind=engine)
+app.include_router(root_router)
+app.include_router(session_router)
+app.include_router(world_router)

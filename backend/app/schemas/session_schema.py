@@ -2,18 +2,13 @@
 
 from pydantic import BaseModel
 
+from .core_schemas import GameSessionResponse
+
 
 class SessionCreateRequest(BaseModel):
-    """Parameters required to create a new game session.
-
-    For V1 this is intentionally empty; future versions may include world or
-    rule options.
-    """
-    pass
+    human_player_name: str | None = None
 
 
-class SessionResponse(BaseModel):
-    """Response returned after successfully creating a session."""
-
-    session_id: str
+class SessionCreatedEnvelope(BaseModel):
     message: str
+    session: GameSessionResponse

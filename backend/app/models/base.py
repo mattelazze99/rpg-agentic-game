@@ -1,4 +1,4 @@
-"""Shared SQLAlchemy base class for all ORM models."""
+"""Shared SQLAlchemy declarative base."""
 
 from sqlalchemy.orm import declarative_base
 

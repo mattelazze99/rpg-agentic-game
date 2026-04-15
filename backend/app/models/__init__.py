@@ -1,11 +1,45 @@
-"""Database models for the game domain.
+"""Model imports for metadata registration."""
 
-Importing this package will register all SQLAlchemy models so that they can be
-created by metadata operations.  Additional models should be imported in this
-module to ensure they are discovered by Alembic migrations or other tools.
-"""
+from .base import Base
+from .core import (
+    AIPlayerAgent,
+    Character,
+    Encounter,
+    EncounterStatus,
+    EventLogEntry,
+    GameSession,
+    HumanPlayer,
+    InventoryItem,
+    LootItem,
+    LootType,
+    MasterAgent,
+    NPC,
+    Quest,
+    QuestStatus,
+    SceneState,
+    SceneType,
+    SessionStatus,
+    WorldState,
+)
 
-from .base import Base  # noqa: F401
-from .session import Session  # noqa: F401
-# Additional models (e.g. Character, World) can be imported here as they are
-# implemented.
+__all__ = [
+    "Base",
+    "GameSession",
+    "HumanPlayer",
+    "AIPlayerAgent",
+    "MasterAgent",
+    "Character",
+    "WorldState",
+    "SceneState",
+    "NPC",
+    "Quest",
+    "Encounter",
+    "LootItem",
+    "InventoryItem",
+    "EventLogEntry",
+    "SessionStatus",
+    "SceneType",
+    "QuestStatus",
+    "EncounterStatus",
+    "LootType",
+]

@@ -1,9 +1,10 @@
-"""Schemas for world queries and responses."""
+"""World response schema."""
 
 from pydantic import BaseModel
 
+from .core_schemas import WorldStateResponse
 
-class WorldResponse(BaseModel):
-    """Response containing a summary of the game world."""
 
-    summary: str
+class WorldEnvelope(BaseModel):
+    session_id: str
+    world: WorldStateResponse
